@@ -1,0 +1,159 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+
+const int SIZE = 4; // размер поля( если что  бы сделать пятнашки 6 на 6 или 8 на 8  просто вместо 4 напишите 6 или 8 )
+
+int board[SIZE][SIZE]; // игровое поле
+int emptyRow, emptyCol; // координаты пустой клетки
+
+void initBoard() // инициализация игрового поля 
+{ 
+	int num = 1;
+	for (int i = 0; i < SIZE; i++)
+	{
+		for (int j = 0; j < SIZE; j++)
+		{
+			board[i][j] = num++;
+		}
+	}
+	board[SIZE - 1][SIZE - 1] = 0; // последняя клетка - пустая
+	emptyRow = SIZE - 1;
+	emptyCol = SIZE - 1;
+}
+
+void shuffleBoard()// перемешивание игрового поля
+{ 
+	srand(time(NULL));
+	for (int i = 0; i < 1000; i++)
+	{
+		int dir = rand() % 4; // случайное направление
+		int newRow = emptyRow, newCol = emptyCol;
+		if (dir == 0 && emptyRow > 0) { // вверх
+			newRow--;
+		}
+		else if (dir == 1 && emptyCol < SIZE - 1) // вправо
+		{
+			newCol++;
+		}
+		else if (dir == 2 && emptyRow < SIZE - 1) // вниз
+		{ 
+			newRow++;
+		}
+		else if (dir == 3 && emptyCol > 0) // влево
+		{
+			newCol--;
+		}
+		if (newRow != emptyRow || newCol != emptyCol)
+		{ // если клетка сдвинулась
+			board[emptyRow][emptyCol] = board[newRow][newCol];
+			board[newRow][newCol] = 0;
+			emptyRow = newRow;
+			emptyCol = newCol;
+		}
+	}
+}
+
+void drawBoard()// отрисовка игрового поля
+{ 
+	system("cls");
+	for (int i = 0; i < SIZE; i++)
+	{
+		for (int j = 0; j < SIZE; j++)
+		{
+			if (board[i][j] == 0)
+			{
+				cout << " \t";
+			}
+			else 
+			{
+				cout << board[i][j] << "\t";
+			}
+		}
+		cout << endl;
+		cout << endl;
+		cout << endl;
+	}
+	cout << endl;
+}
+
+bool checkWin() // проверка на победу
+{ 
+	int num = 1;
+	for (int i = 0; i < SIZE; i++)
+	{
+		for (int j = 0; j < SIZE; j++)
+		{
+			if (board[i][j] != num++)
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+int main()
+{
+	(LC_ALL, "Russian");
+	setlocale(0, "");
+	initBoard();
+	shuffleBoard();
+	while (!checkWin())
+	{
+		drawBoard();
+		int num;
+		cout << "Введите номер для перемещения (0 для выхода): ";
+		cin >> num;
+		if (num == 0)
+		{
+			break;
+		}
+		int row = -1, col = -1;
+		for (int i = 0; i < SIZE; i++)
+		{
+			for (int j = 0; j < SIZE; j++)
+			{
+				if (board[i][j] == num)
+				{
+					row = i;
+					col = j;
+					break;
+				}
+			}
+		}
+		if (row == -1 || col == -1)
+		{
+			cout << "Неверный номер!" << endl;
+		}
+		else
+		{
+			if (row == emptyRow && col == emptyCol)
+			{
+				cout << "Эта ячейка уже пуста!" << endl;
+			}
+			else if ((row == emptyRow && abs(col - emptyCol) == 1) || (col == emptyCol && abs(row - emptyRow) == 1)) //Функция abs вычисляет абсолютную величину
+			{
+				board[emptyRow][emptyCol] = num;
+				board[row][col] = 0;
+				emptyRow = row;
+				emptyCol = col;
+			}
+			else
+			{
+				cout << "Недопустимый ход!" << endl;
+			}
+		}
+	}
+	drawBoard();
+	if (checkWin())
+	{
+		cout << "Поздравляю, вы выиграли!" << endl;
+	}
+	else
+	{
+		cout << "Пока!" << endl;
+	}
+	return 0;
+}
